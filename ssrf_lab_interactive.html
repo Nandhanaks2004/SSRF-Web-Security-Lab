@@ -1,0 +1,870 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-mono,'Courier New',monospace)}
+.lab{background:#0a0e1a;color:#c8d0e8;min-height:100vh;padding:0}
+.hero{background:linear-gradient(135deg,#0a0e1a 0%,#111827 100%);border-bottom:1px solid #1e3a5f;padding:24px 28px 20px}
+.hero-title{font-size:22px;font-weight:500;color:#60a5fa;letter-spacing:1px;font-family:var(--font-mono)}
+.hero-sub{font-size:13px;color:#64748b;margin-top:4px;font-family:var(--font-sans)}
+.hero-desc{font-size:12px;color:#475569;margin-top:8px;font-family:var(--font-sans);max-width:560px}
+.nav{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid #1e2d45;background:#070b14;padding:0 12px}
+.nav-btn{font-size:11px;font-family:var(--font-mono);color:#64748b;border:none;background:none;padding:10px 12px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.nav-btn:hover{color:#93c5fd}
+.nav-btn.active{color:#60a5fa;border-bottom-color:#3b82f6}
+.section{display:none;padding:20px 24px}
+.section.active{display:block}
+.card{background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;padding:16px;margin-bottom:14px}
+.card-title{font-size:13px;color:#60a5fa;font-weight:500;margin-bottom:10px;font-family:var(--font-mono);display:flex;align-items:center;gap:6px}
+.card-title::before{content:'>';color:#3b82f6}
+.prose{font-size:13px;color:#94a3b8;line-height:1.7;font-family:var(--font-sans)}
+.highlight{color:#fbbf24;font-weight:500}
+.danger{color:#f87171}
+.safe{color:#34d399}
+.info{color:#60a5fa}
+.code{background:#060910;border:1px solid #1e3a5f;border-radius:6px;padding:12px;font-size:12px;font-family:var(--font-mono);color:#a5f3fc;margin:8px 0;white-space:pre}
+.terminal{background:#060910;border:1px solid #1e3a5f;border-radius:6px;padding:12px;font-size:12px;font-family:var(--font-mono);margin:8px 0;min-height:60px}
+.term-line{color:#34d399;margin-bottom:2px}
+.term-err{color:#f87171;margin-bottom:2px}
+.term-warn{color:#fbbf24;margin-bottom:2px}
+.term-dim{color:#475569;margin-bottom:2px}
+.btn{background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb;border-radius:6px;padding:7px 14px;font-size:12px;font-family:var(--font-mono);cursor:pointer;transition:all .2s}
+.btn:hover{background:#2563eb;color:#fff}
+.btn.danger-btn{background:#450a0a;color:#fca5a5;border-color:#dc2626}
+.btn.danger-btn:hover{background:#dc2626;color:#fff}
+.btn.safe-btn{background:#052e16;color:#6ee7b7;border-color:#059669}
+.btn.safe-btn:hover{background:#059669;color:#fff}
+.input-field{background:#060910;border:1px solid #2d3748;border-radius:6px;padding:8px 12px;font-size:12px;font-family:var(--font-mono);color:#e2e8f0;width:100%}
+.input-field:focus{outline:none;border-color:#3b82f6}
+.row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.col{flex:1;min-width:200px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--font-mono);font-weight:500}
+.badge-danger{background:#450a0a;color:#fca5a5;border:1px solid #dc2626}
+.badge-safe{background:#052e16;color:#6ee7b7;border:1px solid #059669}
+.badge-warn{background:#431407;color:#fcd34d;border:1px solid #d97706}
+.badge-info{background:#0c1a35;color:#93c5fd;border:1px solid #2563eb}
+.big-q{font-size:28px;font-weight:500;color:#f8fafc;text-align:center;padding:20px 0 12px;font-family:var(--font-sans)}
+.choice-row{display:flex;gap:16px;justify-content:center;margin:12px 0}
+.choice-btn{background:#0f172a;border:2px solid #1e3a5f;border-radius:10px;padding:20px 32px;cursor:pointer;text-align:center;transition:all .2s;color:#94a3b8;font-family:var(--font-sans)}
+.choice-btn:hover{border-color:#3b82f6;color:#93c5fd}
+.choice-btn.selected-browser{border-color:#f59e0b;background:#1c1207;color:#fcd34d}
+.choice-btn.selected-server{border-color:#ef4444;background:#1c0707;color:#fca5a5}
+.choice-icon{font-size:32px;margin-bottom:8px}
+.choice-label{font-size:15px;font-weight:500}
+.choice-sub{font-size:11px;margin-top:4px;opacity:.7}
+.result-box{background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;padding:14px;margin-top:14px;display:none}
+.result-box.show{display:block}
+.flow-diagram{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.flow-node{background:#0f172a;border:1px solid;border-radius:8px;padding:8px 14px;font-size:12px;font-family:var(--font-mono);text-align:center;min-width:90px}
+.flow-node.attacker{border-color:#ef4444;color:#fca5a5}
+.flow-node.browser{border-color:#f59e0b;color:#fcd34d}
+.flow-node.server{border-color:#3b82f6;color:#93c5fd}
+.flow-node.internal{border-color:#a855f7;color:#d8b4fe}
+.flow-node.external{border-color:#34d399;color:#6ee7b7}
+.flow-arrow{font-size:18px;color:#475569;margin:0 6px}
+.network-svg-container{background:#060910;border:1px solid #1e3a5f;border-radius:8px;padding:12px;overflow:auto}
+.target-btn{cursor:pointer;transition:all .2s}
+.target-btn:hover rect,.target-btn:hover circle{opacity:.85}
+.progress-bar{height:4px;background:#1e3a5f;border-radius:2px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width .4s ease}
+.section-counter{font-size:11px;color:#475569;font-family:var(--font-mono);margin-bottom:14px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}}
+.compare-box{background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;padding:14px}
+.compare-title{font-size:12px;font-weight:500;font-family:var(--font-mono);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1e2d45}
+.bypass-input{display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap}
+.bypass-result{font-size:12px;font-family:var(--font-mono);padding:4px 8px;border-radius:4px}
+.bypass-pass{background:#052e16;color:#6ee7b7}
+.bypass-block{background:#450a0a;color:#fca5a5}
+.bypass-unknown{background:#1c1207;color:#fcd34d}
+.scenario-card{background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+.scenario-card:hover{border-color:#3b82f6}
+.scenario-card.active-scenario{border-color:#ef4444}
+.lab-task{background:#060910;border-left:3px solid #3b82f6;padding:10px 14px;margin-bottom:8px;border-radius:0 6px 6px 0}
+.lab-task.done{border-left-color:#34d399}
+.lab-task-title{font-size:12px;color:#93c5fd;font-family:var(--font-mono);margin-bottom:4px}
+.lab-task.done .lab-task-title{color:#34d399}
+.checkbox{display:inline-block;width:14px;height:14px;border:1px solid #475569;border-radius:3px;margin-right:6px;vertical-align:middle;font-size:10px;text-align:center;line-height:14px;color:#34d399}
+.checkbox.checked{background:#052e16;border-color:#059669}
+</style>
+<div class="lab">
+<div class="hero">
+  <div class="hero-title">// SSRF LAB: EXPLOITING SERVER TRUST</div>
+  <div class="hero-sub">Control the Server. Reach the Unreachable.</div>
+  <div class="hero-desc">An interactive platform to understand how servers make requests, how SSRF attacks work, and how attackers access internal systems.</div>
+  <div class="progress-bar" style="margin-top:14px"><div class="progress-fill" id="main-progress" style="width:8%"></div></div>
+</div>
+<div class="nav" id="main-nav">
+  <button class="nav-btn active" onclick="showSection(0)">01 Who Requests?</button>
+  <button class="nav-btn" onclick="showSection(1)">02 CSRF vs SSRF</button>
+  <button class="nav-btn" onclick="showSection(2)">03 What is SSRF</button>
+  <button class="nav-btn" onclick="showSection(3)">04 URL Fetching</button>
+  <button class="nav-btn" onclick="showSection(4)">05 Attack Flow</button>
+  <button class="nav-btn" onclick="showSection(5)">06 Network Map</button>
+  <button class="nav-btn" onclick="showSection(6)">07 SSRF Targets</button>
+  <button class="nav-btn" onclick="showSection(7)">08 Filter Bypass</button>
+  <button class="nav-btn" onclick="showSection(8)">09 Scenarios</button>
+  <button class="nav-btn" onclick="showSection(9)">10 Detection</button>
+  <button class="nav-btn" onclick="showSection(10)">11 Prevention</button>
+  <button class="nav-btn" onclick="showSection(11)">12 Hands-on Lab</button>
+</div>
+
+<!-- SECTION 0: WHO MAKES THE REQUEST -->
+<div class="section active" id="s0">
+  <div class="section-counter">SECTION 01 / 12 — CORE MINDSET</div>
+  <div class="big-q">Who is making the request?</div>
+  <div class="prose" style="text-align:center;margin-bottom:18px">This is the most important question in web security. Click to see how each attack works.</div>
+  <div class="choice-row">
+    <div class="choice-btn" id="choice-browser" onclick="selectChoice('browser')">
+      <div class="choice-icon">🌐</div>
+      <div class="choice-label">Browser</div>
+      <div class="choice-sub">Client-side</div>
+    </div>
+    <div class="choice-btn" id="choice-server" onclick="selectChoice('server')">
+      <div class="choice-icon">🖥</div>
+      <div class="choice-label">Server</div>
+      <div class="choice-sub">Server-side</div>
+    </div>
+  </div>
+  <div class="result-box" id="result-browser">
+    <div class="card-title" style="color:#f59e0b">CSRF — Cross-Site Request Forgery</div>
+    <div class="prose">When the <span class="highlight">browser</span> makes the request, we're talking about <span class="highlight">CSRF</span>. The victim's browser is tricked into sending requests to sites where they're logged in — like transferring money, changing a password, or deleting data.</div>
+    <div class="flow-diagram" style="margin-top:14px">
+      <div class="flow-node attacker">Attacker</div><div class="flow-arrow">→</div>
+      <div class="flow-node browser">Victim Browser</div><div class="flow-arrow">→</div>
+      <div class="flow-node external">Target Website</div>
+    </div>
+    <div class="prose" style="margin-top:10px"><span class="badge badge-warn">CLIENT-SIDE</span> The attacker never directly contacts the server. The victim's browser does the work.</div>
+  </div>
+  <div class="result-box" id="result-server">
+    <div class="card-title" style="color:#ef4444">SSRF — Server-Side Request Forgery</div>
+    <div class="prose">When the <span class="danger">server</span> makes the request, we're talking about <span class="danger">SSRF</span>. The attacker tricks the server into fetching a URL they control — which could be an internal service, admin panel, or cloud metadata endpoint that's normally unreachable.</div>
+    <div class="flow-diagram" style="margin-top:14px">
+      <div class="flow-node attacker">Attacker</div><div class="flow-arrow">→</div>
+      <div class="flow-node server">Server</div><div class="flow-arrow">→</div>
+      <div class="flow-node internal">Internal System</div>
+    </div>
+    <div class="prose" style="margin-top:10px"><span class="badge badge-danger">SERVER-SIDE</span> The server becomes the attacker's proxy — trusted internally, weaponized externally.</div>
+  </div>
+</div>
+
+<!-- SECTION 1: CSRF vs SSRF -->
+<div class="section" id="s1">
+  <div class="section-counter">SECTION 02 / 12 — COMPARISON</div>
+  <div class="card">
+    <div class="card-title">Side-by-Side Comparison</div>
+    <div class="two-col">
+      <div class="compare-box" style="border-color:#f59e0b">
+        <div class="compare-title" style="color:#fcd34d">CSRF — Client-Side Attack</div>
+        <div class="prose">The <span class="highlight">victim's browser</span> is the weapon. Attacker plants a malicious link or page that makes the browser send forged requests on the victim's behalf.</div>
+        <div class="flow-diagram" style="flex-direction:column;align-items:flex-start;gap:6px;margin-top:12px">
+          <div class="flow-node attacker" style="font-size:11px">1. Attacker crafts malicious page</div>
+          <div class="flow-arrow" style="margin:0 0 0 20px">↓</div>
+          <div class="flow-node browser" style="font-size:11px">2. Victim visits & browser fires request</div>
+          <div class="flow-arrow" style="margin:0 0 0 20px">↓</div>
+          <div class="flow-node external" style="font-size:11px">3. Target site receives forged request</div>
+        </div>
+        <div style="margin-top:10px"><span class="badge badge-warn">Impact</span> <span class="prose">Actions on the victim's authenticated session</span></div>
+      </div>
+      <div class="compare-box" style="border-color:#ef4444">
+        <div class="compare-title" style="color:#fca5a5">SSRF — Server-Side Attack</div>
+        <div class="prose">The <span class="danger">server itself</span> is the weapon. Attacker provides a malicious URL that causes the server to make outbound requests to restricted systems.</div>
+        <div class="flow-diagram" style="flex-direction:column;align-items:flex-start;gap:6px;margin-top:12px">
+          <div class="flow-node attacker" style="font-size:11px">1. Attacker sends malicious URL input</div>
+          <div class="flow-arrow" style="margin:0 0 0 20px">↓</div>
+          <div class="flow-node server" style="font-size:11px">2. Server fetches attacker-controlled URL</div>
+          <div class="flow-arrow" style="margin:0 0 0 20px">↓</div>
+          <div class="flow-node internal" style="font-size:11px">3. Internal system data exposed</div>
+        </div>
+        <div style="margin-top:10px"><span class="badge badge-danger">Impact</span> <span class="prose">Access to internal services & sensitive data</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px;margin-bottom:0">
+      <div class="card-title">Key Difference</div>
+      <div class="prose">In <span class="highlight">CSRF</span>, you need a victim user with an active session. In <span class="danger">SSRF</span>, you only need a server that fetches URLs — no victim user required. SSRF can access things the internet can't reach at all.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: WHAT IS SSRF -->
+<div class="section" id="s2">
+  <div class="section-counter">SECTION 03 / 12 — DEFINITION</div>
+  <div class="card">
+    <div class="card-title">Core Definition</div>
+    <div style="background:#060910;border:1px solid #2563eb;border-radius:8px;padding:16px;margin-bottom:14px;text-align:center">
+      <div style="font-size:16px;color:#e2e8f0;font-family:var(--font-sans);line-height:1.6">"SSRF happens when a <span class="danger">server is tricked</span> into making a request to an <span class="highlight">unintended location</span>"</div>
+    </div>
+    <div class="prose">SSRF (Server-Side Request Forgery) exploits applications that accept URLs or similar inputs and make server-side HTTP requests based on them. The server trusts these URLs without proper validation, allowing attackers to redirect it to internal resources.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Why it's Dangerous</div>
+    <div class="row">
+      <div class="col">
+        <div class="prose"><span class="safe">✓ Servers are trusted internally</span> — they can reach things the internet can't</div>
+        <div class="prose" style="margin-top:8px"><span class="danger">✗ Input validation is often missing</span> — developers assume only valid URLs will be used</div>
+      </div>
+      <div class="col">
+        <div class="prose"><span class="danger">✗ Internal firewalls don't protect</span> — the request comes from inside the network</div>
+        <div class="prose" style="margin-top:8px"><span class="danger">✗ Cloud environments are especially exposed</span> — metadata APIs are always available to the server</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Real Example Context</div>
+    <div class="prose">Imagine a feature: "Enter an image URL and we'll resize it for you." Developers write code that fetches the URL. Instead of <code style="background:#0a0e1a;padding:2px 6px;border-radius:3px;color:#a5f3fc">https://cdn.example.com/photo.jpg</code>, the attacker sends <code style="background:#0a0e1a;padding:2px 6px;border-radius:3px;color:#f87171">http://127.0.0.1/admin</code>. The server dutifully fetches it — from inside the network.</div>
+  </div>
+</div>
+
+<!-- SECTION 3: URL FETCHING -->
+<div class="section" id="s3">
+  <div class="section-counter">SECTION 04 / 12 — HOW SERVERS FETCH URLs</div>
+  <div class="card">
+    <div class="card-title">The Vulnerable Pattern</div>
+    <div class="prose">Many web applications take user-supplied URLs and fetch them server-side. This is useful for legitimate features — but dangerous without validation.</div>
+    <div class="code"># Python example — VULNERABLE
+import requests
+
+def fetch_url(user_input):
+    response = requests.get(user_input)  # No validation!
+    return response.content</div>
+    <div class="prose">The server will happily fetch <span class="danger">any URL</span> — including internal ones. The attacker just needs to supply the right URL.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Live Fetch Simulator</div>
+    <div class="prose" style="margin-bottom:10px">Enter a URL and simulate what the server will fetch:</div>
+    <div class="bypass-input">
+      <input class="input-field" id="fetch-url" value="https://example.com/image.jpg" style="flex:1">
+      <button class="btn" onclick="simulateFetch()">Fetch →</button>
+    </div>
+    <div class="terminal" id="fetch-terminal">
+      <div class="term-dim"># Server request log will appear here</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: ATTACK FLOW -->
+<div class="section" id="s4">
+  <div class="section-counter">SECTION 05 / 12 — SSRF ATTACK FLOW</div>
+  <div class="card">
+    <div class="card-title">Step-by-Step Attack Simulation</div>
+    <div class="two-col">
+      <div>
+        <div style="color:#34d399;font-size:12px;font-family:var(--font-mono);margin-bottom:8px">NORMAL REQUEST</div>
+        <div class="code" style="border-color:#059669">GET /fetch?url=http://example.com/img.jpg HTTP/1.1
+Host: webapp.com
+
+Server fetches: http://example.com/img.jpg
+→ Returns image content</div>
+        <div class="badge badge-safe" style="margin-top:6px">SAFE — External URL, public resource</div>
+      </div>
+      <div>
+        <div style="color:#f87171;font-size:12px;font-family:var(--font-mono);margin-bottom:8px">ATTACK REQUEST</div>
+        <div class="code" style="border-color:#dc2626">GET /fetch?url=http://127.0.0.1/admin HTTP/1.1
+Host: webapp.com
+
+Server fetches: http://127.0.0.1/admin
+→ Returns admin panel HTML!</div>
+        <div class="badge badge-danger" style="margin-top:6px">DANGEROUS — Internal URL, private resource</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Animated Attack Walkthrough</div>
+    <div id="attack-steps">
+      <div class="lab-task" id="astep-0">
+        <div class="lab-task-title">Step 1: Identify the URL Input</div>
+        <div class="prose">Attacker finds a feature that accepts user-supplied URLs: image loader, webhook tester, URL preview, PDF generator...</div>
+      </div>
+      <div class="lab-task" id="astep-1" style="border-left-color:#475569;opacity:.5">
+        <div class="lab-task-title">Step 2: Craft Malicious URL</div>
+        <div class="prose">Instead of a public URL, attacker supplies: <span class="danger">http://127.0.0.1:6379</span> (Redis), <span class="danger">http://192.168.1.1/admin</span>, or <span class="danger">http://169.254.169.254/latest/meta-data/</span></div>
+      </div>
+      <div class="lab-task" id="astep-2" style="border-left-color:#475569;opacity:.5">
+        <div class="lab-task-title">Step 3: Server Makes Internal Request</div>
+        <div class="prose">The server, trusting the input, makes an HTTP request to the internal address. Firewalls don't block it — the request originates internally.</div>
+      </div>
+      <div class="lab-task" id="astep-3" style="border-left-color:#475569;opacity:.5">
+        <div class="lab-task-title">Step 4: Data Exfiltrated</div>
+        <div class="prose">The server returns the internal response to the attacker — admin panel contents, API keys, cloud credentials, internal service data.</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn" onclick="runAttackStep()">Next Step →</button>
+      <button class="btn" onclick="resetAttackSteps()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: NETWORK MAP -->
+<div class="section" id="s5">
+  <div class="section-counter">SECTION 06 / 12 — INTERNAL NETWORK VISUALIZATION</div>
+  <div class="card">
+    <div class="card-title">Interactive Network Map — Click a Target</div>
+    <div class="network-svg-container">
+      <svg width="100%" viewBox="0 0 640 380" role="img">
+        <title>SSRF Internal Network Map</title>
+        <!-- Internet zone -->
+        <rect x="10" y="10" width="140" height="360" rx="10" fill="#0a0e1a" stroke="#2563eb" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="80" y="30" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">INTERNET</text>
+        <!-- Attacker -->
+        <g class="target-btn" onclick="showNetTarget('attacker')">
+          <rect x="24" y="50" width="112" height="44" rx="6" fill="#1c0707" stroke="#dc2626" stroke-width="1"/>
+          <text x="80" y="68" text-anchor="middle" fill="#fca5a5" font-size="11" font-family="monospace">Attacker</text>
+          <text x="80" y="84" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">evil.com</text>
+        </g>
+        <!-- Web server (DMZ) -->
+        <rect x="180" y="10" width="140" height="360" rx="10" fill="#0a0e1a" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="250" y="30" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">DMZ / SERVER</text>
+        <g class="target-btn" onclick="showNetTarget('webserver')">
+          <rect x="194" y="50" width="112" height="44" rx="6" fill="#1c1207" stroke="#d97706" stroke-width="1"/>
+          <text x="250" y="68" text-anchor="middle" fill="#fcd34d" font-size="11" font-family="monospace">Web Server</text>
+          <text x="250" y="84" text-anchor="middle" fill="#fbbf24" font-size="10" font-family="monospace">webapp.com</text>
+        </g>
+        <!-- Internal network -->
+        <rect x="350" y="10" width="280" height="360" rx="10" fill="#0a0e1a" stroke="#a855f7" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="490" y="30" text-anchor="middle" fill="#a855f7" font-size="11" font-family="monospace">INTERNAL NETWORK</text>
+        <!-- Localhost admin -->
+        <g class="target-btn" onclick="showNetTarget('localhost')">
+          <rect x="364" y="45" width="120" height="52" rx="6" fill="#1c0707" stroke="#ef4444" stroke-width="1"/>
+          <text x="424" y="63" text-anchor="middle" fill="#fca5a5" font-size="11" font-family="monospace">Admin Panel</text>
+          <text x="424" y="79" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">127.0.0.1</text>
+          <text x="424" y="92" text-anchor="middle" fill="#dc2626" font-size="9" font-family="monospace">:8080/admin</text>
+        </g>
+        <!-- Database -->
+        <g class="target-btn" onclick="showNetTarget('database')">
+          <rect x="504" y="45" width="116" height="52" rx="6" fill="#1c0707" stroke="#ef4444" stroke-width="1"/>
+          <text x="562" y="63" text-anchor="middle" fill="#fca5a5" font-size="11" font-family="monospace">Database</text>
+          <text x="562" y="79" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">192.168.0.10</text>
+          <text x="562" y="92" text-anchor="middle" fill="#dc2626" font-size="9" font-family="monospace">:5432</text>
+        </g>
+        <!-- Internal API -->
+        <g class="target-btn" onclick="showNetTarget('internalapi')">
+          <rect x="364" y="120" width="120" height="52" rx="6" fill="#1c0707" stroke="#ef4444" stroke-width="1"/>
+          <text x="424" y="138" text-anchor="middle" fill="#fca5a5" font-size="11" font-family="monospace">Internal API</text>
+          <text x="424" y="154" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">192.168.0.5</text>
+          <text x="424" y="167" text-anchor="middle" fill="#dc2626" font-size="9" font-family="monospace">:3000</text>
+        </g>
+        <!-- Redis -->
+        <g class="target-btn" onclick="showNetTarget('redis')">
+          <rect x="504" y="120" width="116" height="52" rx="6" fill="#1c0707" stroke="#ef4444" stroke-width="1"/>
+          <text x="562" y="138" text-anchor="middle" fill="#fca5a5" font-size="11" font-family="monospace">Redis Cache</text>
+          <text x="562" y="154" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">192.168.0.3</text>
+          <text x="562" y="167" text-anchor="middle" fill="#dc2626" font-size="9" font-family="monospace">:6379</text>
+        </g>
+        <!-- Cloud Metadata -->
+        <g class="target-btn" onclick="showNetTarget('cloud')">
+          <rect x="364" y="195" width="256" height="52" rx="6" fill="#1a0a1c" stroke="#a855f7" stroke-width="1"/>
+          <text x="492" y="213" text-anchor="middle" fill="#d8b4fe" font-size="11" font-family="monospace">Cloud Metadata Service</text>
+          <text x="492" y="229" text-anchor="middle" fill="#a855f7" font-size="10" font-family="monospace">169.254.169.254</text>
+          <text x="492" y="242" text-anchor="middle" fill="#7c3aed" font-size="9" font-family="monospace">AWS/GCP/Azure credentials</text>
+        </g>
+        <!-- Arrows: attacker to server -->
+        <line x1="136" y1="72" x2="194" y2="72" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arr-red)" stroke-dasharray="5 3"/>
+        <!-- SSRF arrow: server to internal -->
+        <line x1="306" y1="72" x2="364" y2="71" stroke="#ef4444" stroke-width="2" marker-end="url(#arr-red)" stroke-dasharray="5 3"/>
+        <line x1="306" y1="72" x2="340" y2="72" stroke="none"/>
+        <line x1="306" y1="90" x2="364" y2="146" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arr-red)" stroke-dasharray="4 3" opacity=".6"/>
+        <line x1="306" y1="90" x2="364" y2="221" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arr-purple)" stroke-dasharray="4 3" opacity=".6"/>
+        <!-- Legend -->
+        <rect x="14" y="260" width="130" height="100" rx="6" fill="#060910" stroke="#1e3a5f" stroke-width="0.5"/>
+        <text x="24" y="278" fill="#64748b" font-size="10" font-family="monospace">LEGEND</text>
+        <line x1="24" y1="293" x2="56" y2="293" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="62" y="297" fill="#94a3b8" font-size="10" font-family="monospace">SSRF path</text>
+        <line x1="24" y1="313" x2="56" y2="313" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="62" y="317" fill="#94a3b8" font-size="10" font-family="monospace">Cloud path</text>
+        <rect x="24" y="328" width="14" height="10" rx="2" fill="#1c0707" stroke="#ef4444" stroke-width="0.5"/>
+        <text x="44" y="338" fill="#94a3b8" font-size="10" font-family="monospace">Target host</text>
+        <defs>
+          <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/></marker>
+          <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-linecap="round"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <div class="terminal" id="net-info">
+      <div class="term-dim"># Click a node in the network diagram to see details</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: TARGETS -->
+<div class="section" id="s6">
+  <div class="section-counter">SECTION 07 / 12 — SSRF TARGETS</div>
+  <div class="card">
+    <div class="card-title">Target 1: Localhost (127.0.0.1)</div>
+    <div class="code">http://127.0.0.1/admin
+http://localhost:8080/management
+http://127.0.0.1:6379  (Redis)
+http://127.0.0.1:9200  (Elasticsearch)</div>
+    <div class="prose">The server fetches from itself. Services bound to localhost assume they're protected — SSRF bypasses this assumption entirely.</div>
+    <div style="margin-top:8px"><span class="badge badge-danger">Impact</span> <span class="prose">Admin panels, internal APIs, caches, debug endpoints</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Target 2: Internal Network (192.168.x.x / 10.x.x.x)</div>
+    <div class="code">http://192.168.0.1       (Router admin)
+http://192.168.0.10:5432 (PostgreSQL)
+http://10.0.0.5/api/v1   (Internal microservice)
+http://172.16.0.1        (Private subnet)</div>
+    <div class="prose">The server can reach the entire internal network. Other servers, databases, microservices — none of these have internet-facing firewalls protecting them from the web server.</div>
+    <div style="margin-top:8px"><span class="badge badge-danger">Impact</span> <span class="prose">Lateral movement, data exfiltration, internal service abuse</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Target 3: Cloud Metadata Service (169.254.169.254)</div>
+    <div class="code">http://169.254.169.254/latest/meta-data/          (AWS)
+http://169.254.169.254/latest/meta-data/iam/security-credentials/role-name
+http://metadata.google.internal/computeMetadata/v1/ (GCP)
+http://169.254.169.254/metadata/instance           (Azure)</div>
+    <div class="prose">Every cloud VM has a <span class="danger">metadata service</span> at this magic IP. It serves instance info, and critically — <span class="danger">IAM credentials</span> that give access to the entire cloud account.</div>
+    <div style="margin-top:8px"><span class="badge badge-danger">Critical Impact</span> <span class="prose">Cloud credential theft → full account takeover</span></div>
+  </div>
+</div>
+
+<!-- SECTION 7: BYPASS -->
+<div class="section" id="s7">
+  <div class="section-counter">SECTION 08 / 12 — FILTER BYPASS TECHNIQUES</div>
+  <div class="card">
+    <div class="card-title">Live Bypass Tester</div>
+    <div class="prose" style="margin-bottom:12px">Test different inputs against a naive blocklist filter. See which ones bypass it:</div>
+    <div id="bypass-tests"></div>
+    <div style="margin-top:12px">
+      <input class="input-field" id="custom-bypass" placeholder="Enter your own bypass attempt..." style="margin-bottom:8px">
+      <button class="btn" onclick="testCustomBypass()">Test Bypass →</button>
+      <div class="terminal" id="custom-bypass-result" style="margin-top:8px;min-height:36px">
+        <div class="term-dim"># Custom bypass result will appear here</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Why Filters Fail</div>
+    <div class="two-col">
+      <div>
+        <div style="color:#f87171;font-size:12px;font-family:var(--font-mono);margin-bottom:6px">Blocklist Approach (Weak)</div>
+        <div class="code" style="border-color:#dc2626">if "127.0.0.1" in url:
+    block()
+# Fails against:
+# - localhost
+# - 2130706433 (decimal)
+# - 0x7f000001 (hex)
+# - 127.0.0.1. (trailing dot)
+# - 127.1 (shortened)</div>
+      </div>
+      <div>
+        <div style="color:#34d399;font-size:12px;font-family:var(--font-mono);margin-bottom:6px">Allowlist Approach (Strong)</div>
+        <div class="code" style="border-color:#059669">ALLOWED = ["cdn.example.com"]
+
+parsed = urlparse(url)
+if parsed.hostname not in ALLOWED:
+    block()
+# Resolves IP AFTER parsing
+# Then re-checks if resolved IP
+# is in private ranges</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 8: SCENARIOS -->
+<div class="section" id="s8">
+  <div class="section-counter">SECTION 09 / 12 — REAL-WORLD SCENARIOS</div>
+  <div class="card">
+    <div class="card-title">Attacker Mindset</div>
+    <div class="two-col">
+      <div class="code" style="border-color:#a855f7;color:#d8b4fe">"Where is URL input used?"
+→ Search for: ?url= ?path= ?image=
+   webhook fields, import features,
+   PDF generators, link previews</div>
+      <div class="code" style="border-color:#a855f7;color:#d8b4fe">"Does the server fetch it?"
+→ Check: response time changes,
+   error messages mention domains,
+   content type reflects external data</div>
+    </div>
+    <div class="two-col" style="margin-top:10px">
+      <div class="code" style="border-color:#a855f7;color:#d8b4fe">"Can I control destination?"
+→ Replace host with 127.0.0.1
+   Watch response carefully
+   Try different ports</div>
+      <div class="code" style="border-color:#a855f7;color:#d8b4fe">"Can I reach internal systems?"
+→ Scan internal IPs via SSRF
+   Use timing attacks if blind
+   Try cloud metadata endpoint</div>
+    </div>
+  </div>
+  <div id="scenario-list"></div>
+  <div class="terminal" id="scenario-output" style="min-height:80px">
+    <div class="term-dim"># Click a scenario above to see the attack chain</div>
+  </div>
+</div>
+
+<!-- SECTION 9: DETECTION -->
+<div class="section" id="s9">
+  <div class="section-counter">SECTION 10 / 12 — DETECTION</div>
+  <div class="card">
+    <div class="card-title">How to Find SSRF Vulnerabilities</div>
+    <div class="prose" style="margin-bottom:12px">As a security tester or developer auditing code:</div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Identify all URL-based inputs</div><div class="prose">Look for parameters named: url, uri, path, src, href, endpoint, redirect, fetch, load, image, webhook, callback</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Test with localhost</div><div class="prose">Replace URL with <code style="background:#060910;padding:1px 4px;border-radius:3px;color:#a5f3fc">http://127.0.0.1</code> and common ports (80, 8080, 443, 22, 3306, 6379, 5432)</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Test internal IP ranges</div><div class="prose">Try <code style="background:#060910;padding:1px 4px;border-radius:3px;color:#a5f3fc">192.168.x.x</code>, <code style="background:#060910;padding:1px 4px;border-radius:3px;color:#a5f3fc">10.x.x.x</code>, <code style="background:#060910;padding:1px 4px;border-radius:3px;color:#a5f3fc">172.16.x.x</code> ranges systematically</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Test cloud metadata</div><div class="prose">Try <code style="background:#060910;padding:1px 4px;border-radius:3px;color:#a5f3fc">http://169.254.169.254/latest/meta-data/</code> if server runs in cloud</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Use out-of-band detection</div><div class="prose">Use Burp Collaborator or interactsh for blind SSRF — the server makes DNS/HTTP requests even if response isn't reflected</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Observe response differences</div><div class="prose">Different error messages, response sizes, timing — all can indicate successful SSRF even without visible output</div></div>
+  </div>
+</div>
+
+<!-- SECTION 10: PREVENTION -->
+<div class="section" id="s10">
+  <div class="section-counter">SECTION 11 / 12 — PREVENTION</div>
+  <div class="two-col">
+    <div class="compare-box" style="border-color:#dc2626">
+      <div class="compare-title" style="color:#fca5a5">❌ Vulnerable Code</div>
+      <div class="code" style="border-color:#dc2626;margin-top:8px">import requests
+
+def fetch_preview(url):
+    # No validation at all
+    resp = requests.get(url)
+    return resp.text</div>
+      <div class="prose" style="margin-top:8px">Server fetches any URL — localhost, internal IPs, cloud metadata. No restriction whatsoever.</div>
+    </div>
+    <div class="compare-box" style="border-color:#059669">
+      <div class="compare-title" style="color:#6ee7b7">✅ Secure Code</div>
+      <div class="code" style="border-color:#059669;margin-top:8px">from urllib.parse import urlparse
+import ipaddress, socket
+
+ALLOWED_HOSTS = {"cdn.example.com"}
+
+def fetch_preview(url):
+    p = urlparse(url)
+    if p.hostname not in ALLOWED_HOSTS:
+        raise ValueError("Host not allowed")
+    ip = socket.gethostbyname(p.hostname)
+    if ipaddress.ip_address(ip).is_private:
+        raise ValueError("Private IP blocked")
+    resp = requests.get(url, timeout=5)
+    return resp.text</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">Prevention Checklist</div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Use allowlists, not blocklists</div><div class="prose">Define exactly which domains/IPs are permitted. Block everything else by default.</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Validate after DNS resolution</div><div class="prose">Always resolve the hostname and check the resulting IP against private ranges — not just the raw input string.</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Block private IP ranges</div><div class="prose">Explicitly reject 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Disable unnecessary URL fetching</div><div class="prose">If a feature doesn't need to fetch arbitrary URLs, don't implement it that way. Use pre-signed URLs or server-side proxies instead.</div></div>
+    <div class="lab-task done"><div class="lab-task-title"><span class="checkbox checked">✓</span>Use network-level controls</div><div class="prose">Firewall egress from web servers. They shouldn't need to reach 169.254.169.254 or internal databases directly.</div></div>
+  </div>
+</div>
+
+<!-- SECTION 11: LAB -->
+<div class="section" id="s11">
+  <div class="section-counter">SECTION 12 / 12 — HANDS-ON LAB</div>
+  <div class="card">
+    <div class="card-title">Lab Environment — Vulnerable URL Fetcher</div>
+    <div class="prose" style="margin-bottom:10px">This simulates a vulnerable web application. Complete the tasks below:</div>
+    <div class="row" style="margin-bottom:8px">
+      <div class="col">
+        <select class="input-field" id="lab-endpoint" style="margin-bottom:8px">
+          <option value="fetch">URL Fetcher (/api/fetch)</option>
+          <option value="image">Image Loader (/api/image)</option>
+          <option value="webhook">Webhook Tester (/api/webhook)</option>
+        </select>
+        <input class="input-field" id="lab-url" value="https://example.com" placeholder="Enter target URL...">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding-top:32px">
+        <button class="btn danger-btn" onclick="runLabRequest()">Send Request →</button>
+        <button class="btn" onclick="clearLab()">Clear</button>
+      </div>
+    </div>
+    <div class="terminal" id="lab-terminal" style="min-height:120px">
+      <div class="term-dim"># Lab output will appear here</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Lab Tasks</div>
+    <div class="lab-task" id="task-1"><div class="lab-task-title"><span class="checkbox" id="cb-1"> </span>Task 1: Access localhost admin panel</div><div class="prose">Try: <span class="danger">http://127.0.0.1/admin</span> or <span class="danger">http://localhost:8080/management</span></div></div>
+    <div class="lab-task" id="task-2"><div class="lab-task-title"><span class="checkbox" id="cb-2"> </span>Task 2: Reach internal network service</div><div class="prose">Try: <span class="danger">http://192.168.0.10:5432</span> or <span class="danger">http://10.0.0.5/api/v1/users</span></div></div>
+    <div class="lab-task" id="task-3"><div class="lab-task-title"><span class="checkbox" id="cb-3"> </span>Task 3: Steal cloud credentials</div><div class="prose">Try: <span class="danger">http://169.254.169.254/latest/meta-data/iam/security-credentials/</span></div></div>
+    <div class="lab-task" id="task-4"><div class="lab-task-title"><span class="checkbox" id="cb-4"> </span>Task 4: Bypass IP filter with decimal encoding</div><div class="prose">Instead of 127.0.0.1, try: <span class="danger">http://2130706433/admin</span> or <span class="danger">http://0177.0.0.1/admin</span></div></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var currentSection=0;
+var attackStep=0;
+var tasksDone={1:false,2:false,3:false,4:false};
+
+var sections=document.querySelectorAll('.section');
+var navBtns=document.querySelectorAll('.nav-btn');
+
+function showSection(i){
+  sections.forEach(function(s){s.classList.remove('active')});
+  navBtns.forEach(function(b){b.classList.remove('active')});
+  sections[i].classList.add('active');
+  navBtns[i].classList.add('active');
+  currentSection=i;
+  document.getElementById('main-progress').style.width=Math.round((i+1)/12*100)+'%';
+  if(i===7)initBypass();
+  if(i===8)initScenarios();
+}
+
+function selectChoice(type){
+  document.getElementById('choice-browser').className='choice-btn';
+  document.getElementById('choice-server').className='choice-btn';
+  document.getElementById('result-browser').className='result-box';
+  document.getElementById('result-server').className='result-box';
+  if(type==='browser'){
+    document.getElementById('choice-browser').className='choice-btn selected-browser';
+    document.getElementById('result-browser').className='result-box show';
+  } else {
+    document.getElementById('choice-server').className='choice-btn selected-server';
+    document.getElementById('result-server').className='result-box show';
+  }
+}
+
+function simulateFetch(){
+  var url=document.getElementById('fetch-url').value.trim();
+  var t=document.getElementById('fetch-terminal');
+  var isInternal=url.indexOf('127.')==0||url.indexOf('192.168.')==0||url.indexOf('10.')==0||url.toLowerCase().indexOf('localhost')==0||url.indexOf('169.254.')==0||url.indexOf('2130706433')>0;
+  t.innerHTML='';
+  addTerm(t,'dim','$ server → requests.get("'+url+'")');
+  setTimeout(function(){addTerm(t,'dim','[*] Resolving hostname...')},200);
+  setTimeout(function(){
+    if(isInternal){
+      addTerm(t,'warn','[!] WARNING: Resolved to private/internal address');
+      addTerm(t,'err','[!] SSRF DETECTED — Internal URL being fetched by server');
+      addTerm(t,'err','[!] Bypassing network firewall via server trust...');
+      setTimeout(function(){addTerm(t,'line','[+] Response: 200 OK — Internal resource accessed!')},600);
+    } else {
+      addTerm(t,'dim','[*] Resolving external hostname...');
+      addTerm(t,'line','[+] Fetching: '+url);
+      setTimeout(function(){addTerm(t,'line','[+] Response: 200 OK — External content returned safely')},400);
+    }
+  },600);
+}
+
+function addTerm(el,cls,msg){
+  var d=document.createElement('div');
+  d.className='term-'+cls;
+  d.textContent=msg;
+  el.appendChild(d);
+}
+
+var attackSteps=0;
+function runAttackStep(){
+  if(attackSteps<4){
+    var el=document.getElementById('astep-'+attackSteps);
+    el.style.borderLeftColor='#3b82f6';
+    el.style.opacity='1';
+    if(attackSteps===3){el.style.borderLeftColor='#dc2626'}
+    attackSteps++;
+  }
+}
+function resetAttackSteps(){
+  attackSteps=0;
+  for(var i=0;i<4;i++){
+    var el=document.getElementById('astep-'+i);
+    el.style.borderLeftColor=i===0?'#3b82f6':'#475569';
+    el.style.opacity=i===0?'1':'0.5';
+  }
+}
+
+var netTargets={
+  attacker:{title:'Attacker',info:['[*] Origin: evil.com','[*] Crafting SSRF payload...','[!] Injecting malicious URL into server request','[*] Waiting for server to make internal request...']},
+  webserver:{title:'Web Server',info:['[*] webapp.com — receives user input','[*] Feature: URL fetcher / image loader','[!] No input validation present','[!] Will fetch ANY url supplied by user','[+] Acts as proxy to internal network']},
+  localhost:{title:'Localhost Admin — 127.0.0.1',info:['[!] SSRF TARGET: http://127.0.0.1/admin','[!] Admin panel bound to localhost only','[!] Normally unreachable from internet','[+] SSRF allows server to fetch it internally','[+] Response: Admin credentials, user list, config']},
+  database:{title:'Database — 192.168.0.10:5432',info:['[!] SSRF TARGET: http://192.168.0.10:5432','[!] PostgreSQL database on internal network','[!] No internet-facing firewall protection','[+] Port scanning possible via SSRF','[+] Some DBs have HTTP interfaces (CouchDB, Elasticsearch)']},
+  internalapi:{title:'Internal API — 192.168.0.5:3000',info:['[!] SSRF TARGET: http://192.168.0.5:3000/api/v1/users','[!] Internal microservice — no auth required','[!] Assumes only internal callers','[+] SSRF bypasses this assumption completely','[+] All API endpoints accessible via server proxy']},
+  redis:{title:'Redis Cache — 192.168.0.3:6379',info:['[!] SSRF TARGET: http://192.168.0.3:6379','[!] Redis often has no authentication','[!] Can read/write session tokens','[+] SSRF → session hijacking possible','[+] Can also write malicious data via CRLF injection']},
+  cloud:{title:'Cloud Metadata — 169.254.169.254',info:['[!!!] CRITICAL SSRF TARGET','[!!!] URL: http://169.254.169.254/latest/meta-data/','[!!!] iam/security-credentials/role-name','[!!!] Returns: AccessKeyId, SecretAccessKey, Token','[!!!] IMPACT: Full cloud account takeover!']}
+};
+
+function showNetTarget(key){
+  var t=document.getElementById('net-info');
+  var target=netTargets[key];
+  t.innerHTML='';
+  addTerm(t,'dim','=== '+target.title+' ===');
+  target.info.forEach(function(line,i){
+    setTimeout(function(){
+      var cls=line.startsWith('[!!!')?' err':line.startsWith('[!')?' warn':line.startsWith('[+]')?' line':' dim';
+      addTerm(t,cls.trim(),line);
+    },i*80);
+  });
+}
+
+var bypassData=[
+  {input:'127.0.0.1',result:'blocked',reason:'Exact match — filter catches this'},
+  {input:'localhost',result:'bypass',reason:'String "localhost" resolves to 127.0.0.1 but filter only checks "127.0.0.1"'},
+  {input:'2130706433',result:'bypass',reason:'Decimal representation of 127.0.0.1 — filter doesn\'t recognize it'},
+  {input:'0x7f000001',result:'bypass',reason:'Hex representation — most string-based filters miss this'},
+  {input:'127.1',result:'bypass',reason:'Short-form IP — valid in many OS parsers, resolves to 127.0.0.1'},
+  {input:'127.0.0.1.',result:'bypass',reason:'Trailing dot — technically valid DNS, but confuses naive string matching'},
+  {input:'[::]',result:'bypass',reason:'IPv6 loopback — filter may only check IPv4 format'},
+  {input:'192.168.0.1',result:'blocked',reason:'Private IP range check catches this'},
+  {input:'http://127.0.0.1@evil.com',result:'bypass',reason:'URL confusion — server may parse host as evil.com then redirect'},
+];
+
+function initBypass(){
+  var c=document.getElementById('bypass-tests');
+  if(c.children.length>0)return;
+  bypassData.forEach(function(b){
+    var div=document.createElement('div');
+    div.className='bypass-input';
+    var cls=b.result==='bypass'?'bypass-pass':b.result==='blocked'?'bypass-block':'bypass-unknown';
+    var label=b.result==='bypass'?'BYPASS':'BLOCKED';
+    div.innerHTML='<code style="background:#060910;padding:4px 10px;border-radius:4px;font-size:12px;color:#a5f3fc;flex:1;word-break:break-all">'+b.input+'</code><span class="bypass-result '+cls+'">'+label+'</span>';
+    div.title=b.reason;
+    c.appendChild(div);
+    var reason=document.createElement('div');
+    reason.style.cssText='font-size:11px;color:#64748b;font-family:var(--font-sans);padding:0 0 8px 0;border-bottom:1px solid #0f172a;margin-bottom:4px';
+    reason.textContent='→ '+b.reason;
+    c.appendChild(reason);
+  });
+}
+
+function testCustomBypass(){
+  var val=document.getElementById('custom-bypass').value.trim();
+  var t=document.getElementById('custom-bypass-result');
+  t.innerHTML='';
+  if(!val){addTerm(t,'warn','[!] Enter a value to test');return;}
+  var isPrivate=/127\.|localhost|192\.168\.|10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[01]\.|169\.254\.|0x7f|2130706433|\[::\]/i.test(val);
+  var isDecimal=/^[0-9]+$/.test(val.replace(/https?:\/\//,''));
+  var isOctal=/^0[0-9]/.test(val);
+  var hasAt=val.indexOf('@')>-1;
+  if(isDecimal||isOctal||hasAt||/localhost/i.test(val)){
+    addTerm(t,'line','[+] POTENTIAL BYPASS — Filter may miss this variant');
+    addTerm(t,'warn','[*] Many naive filters would allow this through');
+  } else if(isPrivate){
+    addTerm(t,'err','[!] BLOCKED by standard private IP filter');
+    addTerm(t,'dim','[*] String-based matching catches this direct form');
+  } else {
+    addTerm(t,'dim','[*] External/unknown — not immediately a bypass');
+    addTerm(t,'warn','[?] Test in actual environment to confirm behavior');
+  }
+}
+
+var scenarios=[
+  {title:'Scenario 1: Admin Panel Access',endpoint:'GET /api/fetch?url=http://127.0.0.1:8080/admin',steps:['[*] Attacker finds URL parameter in fetch endpoint','[*] Substitutes URL with http://127.0.0.1:8080/admin','[+] Server fetches its own admin interface','[+] Admin panel HTML returned to attacker','[!!!] Admin credentials and user data exposed']},
+  {title:'Scenario 2: Internal API Enumeration',endpoint:'GET /api/image?src=http://192.168.0.5/api/users',steps:['[*] Attacker discovers image loader accepts full URLs','[*] Scans internal network via SSRF requests','[*] Finds internal microservice at 192.168.0.5','[+] API returns full user database (no auth needed internally)','[!!!] 50,000 user records exfiltrated']},
+  {title:'Scenario 3: AWS Credential Theft',endpoint:'GET /api/fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/ec2-role',steps:['[*] Server runs on AWS EC2','[*] Attacker crafts request to cloud metadata service','[+] 169.254.169.254 responds with IAM role credentials','[+] AccessKeyId: AKIA... SecretAccessKey: ...','[!!!] Attacker now has full AWS account access!']},
+  {title:'Scenario 4: Server-to-Server Attack',endpoint:'POST /api/webhook with body: {"url":"http://internal-payment-api/transfer"}',steps:['[*] Attacker sets up malicious webhook URL','[*] Webhook URL points to internal payment API','[*] Server calls webhook → hits internal payment service','[+] Payment transfer triggered without authentication','[!!!] Unauthorized financial transactions executed']},
+];
+
+function initScenarios(){
+  var c=document.getElementById('scenario-list');
+  if(c.children.length>0)return;
+  scenarios.forEach(function(s,i){
+    var div=document.createElement('div');
+    div.className='scenario-card';
+    div.id='sc-'+i;
+    div.innerHTML='<div style="font-size:12px;font-family:var(--font-mono);color:#93c5fd;margin-bottom:6px">'+s.title+'</div><code style="font-size:11px;color:#64748b;font-family:var(--font-mono)">'+s.endpoint+'</code>';
+    div.onclick=(function(scenario,idx){return function(){
+      document.querySelectorAll('.scenario-card').forEach(function(x){x.classList.remove('active-scenario')});
+      document.getElementById('sc-'+idx).classList.add('active-scenario');
+      var t=document.getElementById('scenario-output');
+      t.innerHTML='';
+      addTerm(t,'dim','=== '+scenario.title+' ===');
+      scenario.steps.forEach(function(line,j){
+        setTimeout(function(){
+          var cls=line.startsWith('[!!!')?' err':line.startsWith('[+]')?' line':' dim';
+          addTerm(t,cls.trim(),line);
+        },j*150);
+      });
+    }})(s,i);
+    c.appendChild(div);
+  });
+}
+
+function runLabRequest(){
+  var url=document.getElementById('lab-url').value.trim();
+  var endpoint=document.getElementById('lab-endpoint').value;
+  var t=document.getElementById('lab-terminal');
+  t.innerHTML='';
+  addTerm(t,'dim','$ POST /api/'+endpoint);
+  addTerm(t,'dim','  body: {"url":"'+url+'"}');
+  addTerm(t,'dim','');
+  
+  var isLocalhost=/127\.|localhost|0x7f|2130706433|0177\.0\.0\.1/i.test(url);
+  var isInternal=/192\.168\.|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\./i.test(url);
+  var isCloud=/169\.254\.169\.254|metadata\.google\.internal/i.test(url);
+  var isDecimalBypass=/^https?:\/\/2130706433/i.test(url);
+  var isOctalBypass=/^https?:\/\/0177/i.test(url);
+  var isIPv6=/\[::\]/i.test(url);
+
+  setTimeout(function(){
+    if(isLocalhost||isDecimalBypass||isOctalBypass||isIPv6){
+      addTerm(t,'warn','[*] Resolving hostname...');
+      setTimeout(function(){
+        addTerm(t,'err','[!] Resolved to: 127.0.0.1 (loopback)');
+        addTerm(t,'err','[!] Server making request to itself...');
+        if(!tasksDone[1]&&(isLocalhost||isDecimalBypass||isOctalBypass||isIPv6)){
+          if(url.toLowerCase().indexOf('admin')>-1||url.toLowerCase().indexOf('management')>-1||isDecimalBypass||isOctalBypass){
+            completeTask(4);
+          } else {
+            completeTask(1);
+          }
+        }
+        setTimeout(function(){
+          addTerm(t,'line','[+] HTTP/1.1 200 OK');
+          addTerm(t,'line','[+] Content-Type: text/html');
+          addTerm(t,'line','');
+          addTerm(t,'line','<html><title>Admin Panel</title>');
+          addTerm(t,'line','<body>Welcome, admin. Users: 8,492</body>');
+          addTerm(t,'line','<!-- Admin credentials: admin:$2b$12$... -->');
+          if(isDecimalBypass||isOctalBypass||isIPv6){completeTask(4);}
+          else {completeTask(1);}
+        },500);
+      },400);
+    } else if(isInternal){
+      addTerm(t,'warn','[*] Resolving internal hostname...');
+      setTimeout(function(){
+        addTerm(t,'err','[!] Private IP range detected: '+url.match(/\d+\.\d+\.\d+\.\d+/)[0]);
+        addTerm(t,'err','[!] Firewall does NOT block this — request originates from server!');
+        setTimeout(function(){
+          if(url.indexOf('5432')>-1||url.toLowerCase().indexOf('postgres')>-1){
+            addTerm(t,'line','[+] PostgreSQL 14.2 — Connection successful');
+            addTerm(t,'line','[+] Tables: users, payments, sessions, api_keys');
+          } else {
+            addTerm(t,'line','[+] HTTP/1.1 200 OK from internal service');
+            addTerm(t,'line','[+] {"users":[{"id":1,"email":"admin@corp.com","role":"superadmin"}]}');
+          }
+          completeTask(2);
+        },600);
+      },400);
+    } else if(isCloud){
+      addTerm(t,'warn','[*] Fetching cloud metadata service...');
+      setTimeout(function(){
+        addTerm(t,'err','[!!!] CRITICAL: Cloud metadata service accessible!');
+        setTimeout(function(){
+          addTerm(t,'line','[+] HTTP/1.1 200 OK');
+          addTerm(t,'line','{');
+          addTerm(t,'line','  "Code": "Success",');
+          addTerm(t,'line','  "AccessKeyId": "AKIAIOSFODNN7EXAMPLE",');
+          addTerm(t,'line','  "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG...",');
+          addTerm(t,'line','  "Token": "AQoDYXdzEJr...",');
+          addTerm(t,'line','  "Expiration": "2026-04-19T12:00:00Z"');
+          addTerm(t,'line','}');
+          addTerm(t,'err','[!!!] AWS credentials stolen! Full account access possible.');
+          completeTask(3);
+        },600);
+      },400);
+    } else {
+      addTerm(t,'line','[+] Fetching external URL: '+url);
+      setTimeout(function(){
+        addTerm(t,'line','[+] HTTP/1.1 200 OK');
+        addTerm(t,'dim','[*] External content fetched safely');
+        addTerm(t,'dim','[*] Tip: Try internal URLs to explore SSRF...');
+      },500);
+    }
+  },300);
+}
+
+function completeTask(num){
+  if(tasksDone[num])return;
+  tasksDone[num]=true;
+  var el=document.getElementById('task-'+num);
+  var cb=document.getElementById('cb-'+num);
+  if(el){el.classList.add('done');el.style.borderLeftColor='#34d399';}
+  if(cb){cb.className='checkbox checked';cb.textContent='✓';}
+}
+
+function clearLab(){
+  document.getElementById('lab-terminal').innerHTML='<div class="term-dim"># Lab output will appear here</div>';
+}
+</script>
